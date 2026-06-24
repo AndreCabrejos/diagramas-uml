@@ -1,0 +1,29 @@
+@startuml
+
+package "EsperaRojo" {
+
+  [App Movil]
+
+  [API Backend]
+
+  [Base de Datos]
+
+  [Servicio GPS]
+
+  [Servicio de Notificaciones]
+
+  [Pasarela de Pago]
+
+}
+
+[App Movil] --> [API Backend]
+
+[API Backend] --> [Base de Datos]
+
+[API Backend] --> [Servicio GPS]
+
+[API Backend] --> [Servicio de Notificaciones]
+
+[API Backend] --> [Pasarela de Pago]
+
+@enduml

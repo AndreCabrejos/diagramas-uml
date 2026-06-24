@@ -1,0 +1,95 @@
+@startuml "EsperaRojo"
+
+class Usuario {
+  - id : Long
+  - nombre : String
+  - correo : String
+  - password : String
+
+  + iniciarSesion() : Boolean
+  + consultarRutas() : List<Ruta>
+  + consultarAforo() : Integer
+}
+
+class Ruta {
+  - id : Long
+  - nombre : String
+  - direccion : String
+  - tiempoRecorrido : Integer
+
+  + obtenerParaderos() : List<Paradero>
+}
+
+class Paradero {
+  - id : Long
+  - nombre : String
+  - ubicacion : String
+
+  + obtenerProximosBuses() : List<Bus>
+}
+
+class Bus {
+  - id : Long
+  - codigo : String
+  - capacidadMaxima : Integer
+  - aforoActual : Integer
+  - tiempoLlegada : Integer
+
+  + calcularAforo() : Double
+}
+
+class Ubicacion {
+  - id : Long
+  - latitud : Double
+  - longitud : Double
+  - fechaRegistro : Date
+
+  + obtenerDistancia() : Double
+}
+
+class Pago {
+  - id : Long
+  - fechaPago : Date
+  - monto : Decimal
+  - estado : String
+
+  + procesarPago() : Boolean
+}
+
+class Notificacion {
+  - id : Long
+  - mensaje : String
+  - fecha : Date
+
+  + enviar() : void
+}
+
+class Recomendacion {
+  - id : Long
+  - descripcion : String
+
+  + generarRecomendacion() : String
+}
+
+enum EstadoPago {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+}
+
+Pago --> EstadoPago : usa
+
+Usuario "1" --> "1" Ubicacion : comparte
+Usuario "1" --> "0..*" Pago : realiza
+Usuario "1" --> "0..*" Notificacion : recibe
+Usuario "1" --> "0..*" Recomendacion : consulta
+
+Ruta "1" --> "1..*" Paradero : contiene
+Ruta "1" --> "1..*" Bus : asigna
+
+Paradero "1" --> "0..*" Bus : recibe
+
+Recomendacion --> Ruta
+Recomendacion --> Paradero
+
+@enduml

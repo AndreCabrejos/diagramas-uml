@@ -1,0 +1,31 @@
+@startuml
+
+node "Smartphone Usuario" {
+  artifact "Aplicacion EsperaRojo"
+}
+
+node "Servidor Cloud" {
+  artifact "API Backend"
+}
+
+database "MySQL/PostgreSQL" {
+  artifact "Base de Datos"
+}
+
+cloud "Servicio GPS"
+
+cloud "Pasarela de Pago"
+
+cloud "Servicio de Notificaciones"
+
+"Aplicacion EsperaRojo" --> "API Backend"
+
+"API Backend" --> "Base de Datos"
+
+"API Backend" --> "Servicio GPS"
+
+"API Backend" --> "Pasarela de Pago"
+
+"API Backend" --> "Servicio de Notificaciones"
+
+@enduml
