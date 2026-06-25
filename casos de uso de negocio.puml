@@ -1,0 +1,42 @@
+@startuml "Business Case: EsperaRojo ULima"
+left to right direction
+
+actor/ "Usuario ULima" <<Business Actor>> as User
+actor/ "Operador de\nTransporte" <<Business Actor>> as Transport
+actor/ "Administrador\ndel Sistema" <<Business Worker>> as Admin
+
+usecase/ "Consultar\nInformación de Viaje" as BUC1
+usecase/ "Monitorear\nBuses y Aforo" as BUC2
+usecase/ "Recibir\nRecomendaciones" as BUC3
+usecase/ "Gestionar\nServicio" as BUC4
+usecase/ "Administrar\nUsuarios y Suscripciones" as BUC5
+usecase/ "Proveer Datos de\nRutas y Buses" as BUC6
+
+User --> BUC1
+User --> BUC2
+User --> BUC3
+
+Admin --> BUC4
+Admin --> BUC5
+
+Transport --> BUC6
+
+BUC1 --> BUC2 : <<include>>
+BUC3 --> BUC2 : <<include>>
+BUC4 --> BUC6 : <<include>>
+
+skinparam usecase {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+
+skinparam actor {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+
+skinparam Arrow {
+  Color #7A1631
+}
+
+@enduml
