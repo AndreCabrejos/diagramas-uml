@@ -1,109 +1,35 @@
-@startuml "EsperaRojo"
+@startuml
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
 
-class Usuario {
-  - id : Long
-  - nombre : String
-  - correo : String
-  - password : String
+|Usuario|
+start
+:Abre la aplicación;
+:Ingresa correo y contraseña;
+:Presiona "Iniciar sesión";
 
-  + consultarRuta() : Ruta
-  + consultarAforo() : Integer
-  + realizarPago() : Pago
-}
+|Sistema|
+:Validar credenciales;
 
-class Ruta {
-  - id : Long
-  - nombre : String
-  - direccion : String
+if (¿Credenciales válidas?) then (Sí)
 
-  + obtenerParaderos() : List<Paradero>
-}
+    if (¿Usuario registrado?) then (Sí)
+        :Permitir acceso;
+        :Mostrar pantalla principal;
 
-class Paradero {
-  - id : Long
-  - nombre : String
-  - ubicacion : String
+        |Usuario|
+        :Utiliza la aplicación;
+        stop
 
-  + obtenerBuses() : List<Bus>
-}
+    else (No)
+        :Mostrar mensaje de usuario no registrado;
+        stop
+    endif
 
-class Bus {
-  - id : Long
-  - placa : String
-  - capacidadMaxima : Integer
-  - aforoActual : Integer
-
-  + calcularDisponibilidad() : Double
-}
-
-class Ubicacion {
-  - id : Long
-  - latitud : Double
-  - longitud : Double
-  - fechaRegistro : Date
-
-  + calcularDistancia() : Double
-}
-
-class Recomendacion {
-  - id : Long
-  - descripcion : String
-
-  + generar() : String
-}
-
-abstract class Notificacion {
-  - id : Long
-  - mensaje : String
-  - fecha : Date
-
-  + enviar() : void
-}
-
-class NotificacionLlegada
-class NotificacionAforo
-
-Notificacion <|-- NotificacionLlegada
-Notificacion <|-- NotificacionAforo
-
-class Pago {
-  - id : Long
-  - fechaPago : Date
-  - monto : Decimal
-
-  + procesarPago() : Boolean
-}
-
-class MetodoPago {
-  - id : Long
-  - nombre : String
-}
-
-enum EstadoPago {
-  PENDIENTE
-  APROBADO
-  RECHAZADO
-}
-
-Pago --> EstadoPago : uses
-
-Usuario "1" --> "1" Ubicacion : comparte
-
-Usuario "1" --> "0..*" Pago : realiza
-
-Pago "1" --> "1" MetodoPago : utiliza
-
-Usuario "1" --> "0..*" Notificacion : recibe
-
-Usuario "1" --> "0..*" Recomendacion : consulta
-
-Ruta "1" --> "1..*" Paradero : contiene
-
-Ruta "1" --> "1..*" Bus : asigna
-
-Paradero "1" --> "0..*" Bus : recibe
-
-Recomendacion --> Ruta
-Recomendacion --> Paradero
+else (No)
+    :Mostrar mensaje de error;
+    stop
+endif
 
 @enduml
