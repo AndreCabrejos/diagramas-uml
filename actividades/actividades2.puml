@@ -1,0 +1,35 @@
+@startuml
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
+
+|Usuario|
+start
+:Accede al mapa interactivo;
+
+|Sistema|
+:Carga rutas y paraderos;
+
+if (Existen datos?) then (Sí)
+
+  :Muestra mapa interactivo;
+
+  |Usuario|
+  :Selecciona un paradero;
+
+  |Sistema|
+  :Muestra información del paradero;
+
+  stop
+
+else (No)
+
+  :Muestra mensaje de información no disponible;
+  stop
+
+endif
+
+@enduml

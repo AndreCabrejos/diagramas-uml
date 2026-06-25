@@ -1,0 +1,39 @@
+@startuml
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
+
+|Usuario|
+start
+:Abre el mapa;
+
+|Sistema|
+:Solicita permiso GPS;
+
+|Usuario|
+
+if (Acepta permiso?) then (Sí)
+
+  |Sistema|
+  :Obtiene ubicación actual;
+  :Muestra ubicación en el mapa;
+  :Muestra paraderos cercanos;
+
+  |Usuario|
+  :Consulta información;
+  stop
+
+else (No)
+
+  |Sistema|
+  :Muestra mensaje de error;
+  :No carga el mapa;
+
+  stop
+
+endif
+
+@enduml
