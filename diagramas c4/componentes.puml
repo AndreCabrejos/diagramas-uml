@@ -1,33 +1,62 @@
 @startuml C3_Component
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
-Container_Boundary(api,"API REST"){
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
-Component(auth,"AuthController","REST")
-Component(user,"UsuarioService","Negocio")
-Component(route,"RutaService","Negocio")
-Component(bus,"BusService","Negocio")
-Component(subscription,"SubscriptionService","Negocio")
-Component(payment,"PaymentService","Negocio")
-Component(notification,"NotificationService","Negocio")
-Component(recommendation,"RecommendationService","Negocio")
+LAYOUT_LEFT_RIGHT()
 
+Person(usuario, "Usuario")
+
+System_Boundary(s1, "EsperaRojo ULima") {
+
+    Container(web, "Página Web Responsive", "React", "Interfaz de usuario")
+
+    Container_Boundary(api, "API REST (Spring Boot)") {
+
+        Component(auth, "AuthController", "REST Controller", "Autenticación de usuarios")
+        Component(usuarioService, "UsuarioService", "Servicio", "Gestión de usuarios")
+        Component(rutaService, "RutaService", "Servicio", "Gestión de rutas")
+        Component(busService, "BusService", "Servicio", "Información de buses")
+        Component(ubicacionService, "UbicacionService", "Servicio", "Ubicación de buses")
+        Component(subscriptionService, "SubscriptionService", "Servicio", "Gestión de suscripciones")
+        Component(paymentService, "PaymentService", "Servicio", "Procesamiento de pagos")
+        Component(notificationService, "NotificationService", "Servicio", "Notificaciones")
+        Component(recommendationService, "RecommendationService", "Servicio", "Recomendaciones")
+    }
+
+    ContainerDb(db, "MySQL", "Base de Datos", "Información del sistema")
 }
 
-ContainerDb(db,"MySQL")
+System_Ext(maps, "Google Maps API", "Mapas")
+System_Ext(payext, "Pasarela de Pago", "Pagos")
+System_Ext(busapi, "API Corredor Rojo", "Información de buses")
 
-Rel(auth,user,"Autentica")
-Rel(user,subscription,"Consulta")
-Rel(subscription,payment,"Gestiona pagos")
-Rel(route,bus,"Consulta")
-Rel(bus,recommendation,"Envía datos")
-Rel(recommendation,notification,"Genera alertas")
+Rel(usuario, web, "Usa")
 
-Rel(auth,db,"Lee")
-Rel(user,db,"CRUD")
-Rel(route,db,"CRUD")
-Rel(bus,db,"CRUD")
-Rel(subscription,db,"CRUD")
-Rel(payment,db,"CRUD")
+Rel(web, auth, "Inicia sesión")
+Rel(web, rutaService, "Consulta rutas")
+Rel(web, busService, "Consulta aforo")
+Rel(web, subscriptionService, "Gestiona suscripción")
+Rel(web, recommendationService, "Solicita recomendaciones")
+
+Rel(auth, usuarioService, "Autentica")
+Rel(usuarioService, subscriptionService, "Consulta")
+Rel(subscriptionService, paymentService, "Gestiona pagos")
+Rel(rutaService, busService, "Consulta")
+Rel(busService, ubicacionService, "Obtiene ubicación")
+Rel(busService, recommendationService, "Envía información")
+Rel(recommendationService, notificationService, "Genera alertas")
+
+Rel(ubicacionService, maps, "Consulta mapas")
+Rel(paymentService, payext, "Procesa pagos")
+Rel(busService, busapi, "Consulta buses")
+
+Rel(usuarioService, db, "CRUD")
+Rel(rutaService, db, "CRUD")
+Rel(busService, db, "CRUD")
+Rel(ubicacionService, db, "CRUD")
+Rel(subscriptionService, db, "CRUD")
+Rel(paymentService, db, "CRUD")
+Rel(notificationService, db, "CRUD")
+Rel(recommendationService, db, "CRUD")
 
 @enduml

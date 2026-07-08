@@ -1,0 +1,29 @@
+@startuml "BUC6 - Proveer Datos de Rutas y Buses (Secuencia)"
+skinparam ParticipantBackgroundColor #C7F4FF
+skinparam ParticipantBorderColor #7A1631
+skinparam ActorBackgroundColor #C7F4FF
+skinparam ActorBorderColor #7A1631
+skinparam ArrowColor #7A1631
+skinparam LifeLineBorderColor #7A1631
+
+actor "Operador de\nTransporte" as Op
+participant "API Corredor Rojo" as API
+participant "BusService" as BS
+database "MySQL" as DB
+
+Op -> API : Publica posiciones GPS\ny aforo de los buses
+
+loop Sincronización periódica
+  BS -> API : GET /buses (posición, aforo)
+  API --> BS : Datos actualizados
+  BS -> BS : Valida y transforma datos
+  BS -> DB : UPDATE bus\n(aforo_actual, tiempo_llegada)
+  DB --> BS : OK
+end
+
+note over BS, DB
+  Los datos sincronizados alimentan
+  el monitoreo en tiempo real (BUC2)
+  y las recomendaciones (BUC3)
+end note
+@enduml

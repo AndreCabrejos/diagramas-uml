@@ -1,0 +1,51 @@
+@startuml "Bounded Context: Subscription & Payment"
+skinparam class {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam ArrowColor #7A1631
+
+package "Subscription & Payment Context" {
+
+class Suscripcion <<Aggregate Root>> {
+  - id : Long
+  - plan : String
+  - fechaInicio : Date
+  - fechaFin : Date
+  - estado : EstadoSuscripcion
+
+  + activar() : void
+  + cancelar() : void
+  + estaVigente() : Boolean
+}
+
+class Pago <<Entity>> {
+  - id : Long
+  - fechaPago : Date
+  - monto : Decimal
+  - estado : EstadoPago
+
+  + procesarPago() : Boolean
+}
+
+enum EstadoSuscripcion {
+  ACTIVA
+  VENCIDA
+  CANCELADA
+}
+
+enum EstadoPago {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+}
+
+}
+
+class Usuario <<Identity Context>> #EEEEEE
+
+Suscripcion --> EstadoSuscripcion : usa
+Pago --> EstadoPago : usa
+Suscripcion "1" o-- "1..*" Pago : registra
+Usuario "1" --> "0..*" Suscripcion : contrata
+@enduml

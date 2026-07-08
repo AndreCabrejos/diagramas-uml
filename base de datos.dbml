@@ -1,0 +1,77 @@
+//https://dbdiagram.io
+
+Table usuario {
+  id_usuario int [pk, increment]
+  nombre varchar
+  correo varchar [unique, not null]
+  password varchar [not null]
+}
+
+Table ubicacion {
+  id_ubicacion int [pk, increment]
+  latitud decimal
+  longitud decimal
+  fecha_registro datetime
+  id_usuario int [not null]
+}
+
+Table ruta {
+  id_ruta int [pk, increment]
+  nombre varchar
+  direccion varchar
+}
+
+Table paradero {
+  id_paradero int [pk, increment]
+  nombre varchar
+  ubicacion varchar
+  id_ruta int [not null]
+}
+
+Table bus {
+  id_bus int [pk, increment]
+  codigo varchar [unique]
+  capacidad_maxima int
+  aforo_actual int
+  tiempo_llegada int [note: 'minutos estimados de llegada']
+  id_ruta int [not null]
+}
+
+Table recomendacion {
+  id_recomendacion int [pk, increment]
+  descripcion text
+  fecha datetime
+  id_usuario int [not null]
+}
+
+Table notificacion {
+  id_notificacion int [pk, increment]
+  mensaje text
+  fecha datetime
+  id_usuario int [not null]
+}
+
+Table suscripcion {
+  id_suscripcion int [pk, increment]
+  plan varchar [not null]
+  fecha_inicio datetime
+  fecha_fin datetime
+  estado varchar [note: 'activa | vencida | cancelada']
+  id_usuario int [not null]
+}
+
+Table pago {
+  id_pago int [pk, increment]
+  monto decimal
+  fecha_pago datetime
+  estado varchar [note: 'pendiente | aprobado | rechazado']
+  id_suscripcion int [not null]
+}
+
+Ref: ubicacion.id_usuario > usuario.id_usuario
+Ref: notificacion.id_usuario > usuario.id_usuario
+Ref: recomendacion.id_usuario > usuario.id_usuario
+Ref: suscripcion.id_usuario > usuario.id_usuario
+Ref: pago.id_suscripcion > suscripcion.id_suscripcion
+Ref: paradero.id_ruta > ruta.id_ruta
+Ref: bus.id_ruta > ruta.id_ruta

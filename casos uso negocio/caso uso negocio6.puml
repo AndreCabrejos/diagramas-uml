@@ -1,0 +1,30 @@
+@startuml "BUC6 - Proveer Datos de Rutas y Buses (Negocio)"
+left to right direction
+skinparam usecase {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam actor {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam Arrow {
+  Color #7A1631
+}
+
+actor/ "Operador de\nTransporte" <<Business Actor>> as Op
+actor/ "Administrador\ndel Sistema" <<Business Worker>> as Admin
+
+usecase/ "Proveer Datos de\nRutas y Buses" as BUC6
+usecase/ "Reportar posiciones\nde los buses" as B1
+usecase/ "Reportar aforo\nde cada bus" as B2
+usecase/ "Publicar rutas y\nparaderos oficiales" as B3
+
+Op --> BUC6
+
+BUC6 ..> B1 : <<include>>
+BUC6 ..> B2 : <<include>>
+BUC6 ..> B3 : <<include>>
+
+Admin --> B3
+@enduml

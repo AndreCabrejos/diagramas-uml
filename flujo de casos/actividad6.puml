@@ -1,0 +1,42 @@
+@startuml "Flujo BUC5 - Suscripcion y Pago"
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
+
+|Usuario|
+start
+:Selecciona el plan premium;
+:Ingresa datos de pago;
+
+|Sistema|
+:Envía solicitud a la\npasarela de pago;
+
+|Pasarela de Pago|
+:Procesa el pago;
+
+|Sistema|
+if (¿Pago aprobado?) then (Sí)
+  :Registra el pago como "aprobado";
+  :Activa la suscripción;
+
+  |Usuario|
+  :Accede a las funciones premium;
+  stop
+
+else (No)
+  :Registra el pago como "rechazado";
+  :Muestra mensaje de pago rechazado;
+
+  |Usuario|
+  if (¿Reintenta el pago?) then (Sí)
+    :Ingresa datos de pago nuevamente;
+    stop
+  else (No)
+    stop
+  endif
+endif
+
+@enduml

@@ -1,0 +1,31 @@
+@startuml "BUC1 - Consultar Informacion de Viaje (Secuencia)"
+skinparam ParticipantBackgroundColor #C7F4FF
+skinparam ParticipantBorderColor #7A1631
+skinparam ActorBackgroundColor #C7F4FF
+skinparam ActorBorderColor #7A1631
+skinparam ArrowColor #7A1631
+skinparam LifeLineBorderColor #7A1631
+
+actor "Usuario ULima" as U
+participant "Web Responsive\n(React)" as W
+participant "AuthController" as Auth
+participant "RutaService" as RS
+database "MySQL" as DB
+participant "Google Maps API" as Maps
+
+U -> W : Ingresa correo y contraseña
+W -> Auth : POST /login
+Auth -> DB : Validar credenciales
+DB --> Auth : Usuario válido
+Auth --> W : Token de sesión
+W --> U : Muestra pantalla principal
+
+U -> W : Consulta rutas
+W -> RS : GET /rutas
+RS -> DB : SELECT rutas y paraderos
+DB --> RS : Datos de rutas
+RS --> W : Lista de rutas (JSON)
+W -> Maps : Solicita mapa
+Maps --> W : Mapa renderizado
+W --> U : Muestra mapa con rutas\ny paraderos
+@enduml

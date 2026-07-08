@@ -1,4 +1,4 @@
-@startuml "EsperaRojo - Domain Model"
+@startuml "EsperaRojo - Domain Model (Vista General)"
 
 package "Identity Context" {
 
@@ -55,15 +55,33 @@ class Ubicacion <<Value Object>> {
 
 }
 
-package "Payment Context" {
+package "Subscription & Payment Context" {
 
-class Pago <<Aggregate Root>> {
+class Suscripcion <<Aggregate Root>> {
+  - id : Long
+  - plan : String
+  - fechaInicio : Date
+  - fechaFin : Date
+  - estado : EstadoSuscripcion
+
+  + activar() : void
+  + cancelar() : void
+  + estaVigente() : Boolean
+}
+
+class Pago <<Entity>> {
   - id : Long
   - fechaPago : Date
   - monto : Decimal
   - estado : EstadoPago
 
   + procesarPago() : Boolean
+}
+
+enum EstadoSuscripcion {
+  ACTIVA
+  VENCIDA
+  CANCELADA
 }
 
 enum EstadoPago {
@@ -98,9 +116,11 @@ class Recomendacion <<Entity>> {
 }
 
 Pago --> EstadoPago : usa
+Suscripcion --> EstadoSuscripcion : usa
 
 Usuario "1" --> "1" Ubicacion : comparte
-Usuario "1" --> "0..*" Pago : realiza
+Usuario "1" --> "0..*" Suscripcion : contrata
+Suscripcion "1" o-- "1..*" Pago : registra
 Usuario "1" --> "0..*" Notificacion : recibe
 Usuario "1" --> "0..*" Recomendacion : consulta
 

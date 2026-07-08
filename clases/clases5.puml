@@ -1,0 +1,26 @@
+@startuml "Bounded Context: Recommendation"
+skinparam class {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam ArrowColor #7A1631
+
+package "Recommendation Context" {
+
+class Recomendacion <<Entity>> {
+  - id : Long
+  - descripcion : String
+
+  + generarRecomendacion() : String
+}
+
+}
+
+class Usuario <<Identity Context>> #EEEEEE
+class Ruta <<Transit Context>> #EEEEEE
+class Paradero <<Transit Context>> #EEEEEE
+
+Usuario "1" --> "0..*" Recomendacion : consulta
+Recomendacion --> Ruta
+Recomendacion --> Paradero
+@enduml

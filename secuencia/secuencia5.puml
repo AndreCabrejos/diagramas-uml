@@ -1,0 +1,37 @@
+@startuml "BUC5 - Administrar Usuarios y Suscripciones (Secuencia)"
+skinparam ParticipantBackgroundColor #C7F4FF
+skinparam ParticipantBorderColor #7A1631
+skinparam ActorBackgroundColor #C7F4FF
+skinparam ActorBorderColor #7A1631
+skinparam ArrowColor #7A1631
+skinparam LifeLineBorderColor #7A1631
+
+actor "Usuario ULima" as U
+participant "Web Responsive\n(React)" as W
+participant "SubscriptionService" as SS
+participant "PaymentService" as PS
+participant "Pasarela de Pago" as Pay
+database "MySQL" as DB
+
+U -> W : Selecciona plan premium
+W -> SS : POST /suscripciones
+SS -> DB : INSERT suscripcion\n(plan, estado = "pendiente")
+DB --> SS : id_suscripcion
+SS -> PS : Solicita cobro (id_suscripcion)
+PS -> Pay : Procesa pago (monto)
+Pay --> PS : Resultado del pago
+
+alt Pago aprobado
+  PS -> DB : INSERT pago\n(estado = "aprobado", id_suscripcion)
+  PS --> SS : Pago confirmado
+  SS -> DB : UPDATE suscripcion\n(estado = "activa", fecha_inicio, fecha_fin)
+  SS --> W : Suscripción activa
+  W --> U : "¡Bienvenida al plan premium!"
+else Pago rechazado
+  PS -> DB : INSERT pago\n(estado = "rechazado", id_suscripcion)
+  PS --> SS : Pago rechazado
+  SS -> DB : UPDATE suscripcion\n(estado = "cancelada")
+  SS --> W : Error en el pago
+  W --> U : Muestra mensaje de\npago rechazado
+end
+@enduml

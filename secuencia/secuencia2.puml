@@ -1,0 +1,31 @@
+@startuml "BUC2 - Monitorear Buses y Aforo (Secuencia)"
+skinparam ParticipantBackgroundColor #C7F4FF
+skinparam ParticipantBorderColor #7A1631
+skinparam ActorBackgroundColor #C7F4FF
+skinparam ActorBorderColor #7A1631
+skinparam ArrowColor #7A1631
+skinparam LifeLineBorderColor #7A1631
+
+actor "Usuario ULima" as U
+participant "Web Responsive\n(React)" as W
+participant "BusService" as BS
+participant "API Corredor Rojo" as API
+database "MySQL" as DB
+
+U -> W : Selecciona un paradero
+W -> BS : GET /paraderos/{id}/buses
+BS -> API : Consulta posición y aforo\nde buses en tiempo real
+API --> BS : Datos de buses
+BS -> DB : Actualiza aforo_actual\ny tiempo_llegada
+DB --> BS : OK
+BS -> BS : Calcula % de aforo\ny tiempo estimado
+BS --> W : Buses próximos (JSON)
+W --> U : Muestra buses, aforo\ny tiempo de llegada
+
+loop Cada 30 segundos
+  W -> BS : Refresca datos
+  BS -> API : Consulta actualización
+  API --> BS : Nuevos datos
+  BS --> W : Datos actualizados
+end
+@enduml

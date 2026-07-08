@@ -1,0 +1,32 @@
+@startuml "BUC5 - Administrar Usuarios y Suscripciones (Negocio)"
+left to right direction
+skinparam usecase {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam actor {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam Arrow {
+  Color #7A1631
+}
+
+actor/ "Administrador\ndel Sistema" <<Business Worker>> as Admin
+actor/ "Usuario ULima" <<Business Actor>> as User
+actor/ "Entidad de Pago" <<Business Actor>> as Pay
+
+usecase/ "Administrar Usuarios\ny Suscripciones" as BUC5
+usecase/ "Registrar y mantener\nusuarios" as B1
+usecase/ "Gestionar suscripciones\npremium" as B2
+usecase/ "Cobrar\nsuscripciones" as B3
+
+Admin --> BUC5
+User --> B2
+
+BUC5 ..> B1 : <<include>>
+BUC5 ..> B2 : <<include>>
+B2 ..> B3 : <<include>>
+
+B3 --> Pay
+@enduml

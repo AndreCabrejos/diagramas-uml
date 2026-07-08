@@ -1,0 +1,40 @@
+@startuml "Flujo BUC4 - Gestionar Servicio"
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
+
+|Administrador|
+start
+:Inicia sesión como administrador;
+
+|Sistema|
+:Valida credenciales y rol;
+
+if (¿Rol de administrador?) then (Sí)
+  :Muestra panel de gestión;
+
+  |Administrador|
+  :Registra o actualiza\nrutas y paraderos;
+
+  |Sistema|
+  :Valida los datos ingresados;
+
+  if (¿Datos válidos?) then (Sí)
+    :Guarda cambios en la base de datos;
+    :Muestra confirmación;
+    stop
+  else (No)
+    :Muestra errores de validación;
+    stop
+  endif
+
+else (No)
+  :Deniega el acceso;
+  stop
+endif
+
+@enduml
+    

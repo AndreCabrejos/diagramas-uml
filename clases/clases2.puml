@@ -1,0 +1,54 @@
+@startuml "Bounded Context: Transit"
+skinparam class {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam ArrowColor #7A1631
+
+package "Transit Context" {
+
+class Ruta <<Aggregate Root>> {
+  - id : Long
+  - nombre : String
+  - direccion : String
+  - tiempoRecorrido : Integer
+
+  + obtenerParaderos() : List<Paradero>
+}
+
+class Paradero <<Entity>> {
+  - id : Long
+  - nombre : String
+  - ubicacion : String
+
+  + obtenerProximosBuses() : List<Bus>
+}
+
+class Bus <<Entity>> {
+  - id : Long
+  - codigo : String
+  - capacidadMaxima : Integer
+  - aforoActual : Integer
+  - tiempoLlegada : Integer
+
+  + calcularAforo() : Double
+}
+
+class Ubicacion <<Value Object>> {
+  - id : Long
+  - latitud : Double
+  - longitud : Double
+  - fechaRegistro : Date
+
+  + obtenerDistancia() : Double
+}
+
+}
+
+class Usuario <<Identity Context>> #EEEEEE
+
+Ruta "1" o-- "1..*" Paradero : contiene
+Ruta "1" o-- "1..*" Bus : asigna
+Paradero "1" --> "0..*" Bus : recibe
+Usuario "1" --> "1" Ubicacion : comparte
+@enduml

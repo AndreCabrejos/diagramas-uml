@@ -1,4 +1,4 @@
-vs  @startuml
+@startuml
 skinparam SwimlaneTitleBackgroundColor #EEE
 skinparam ActivityBackgroundColor #FFF9C4
 skinparam ActivityBorderColor #7A1631

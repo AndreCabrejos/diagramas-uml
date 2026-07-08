@@ -1,0 +1,27 @@
+@startuml "Flujo BUC6 - Proveer Datos de Rutas y Buses"
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
+
+|Operador de Transporte|
+start
+:Publica posiciones GPS y\naforo de los buses;
+
+|Sistema|
+:Consulta la API del Corredor Rojo;
+
+if (¿Datos disponibles?) then (Sí)
+  :Valida y transforma los datos;
+  :Actualiza aforo y tiempos\nde llegada en la base de datos;
+  :Notifica a los módulos de\nmonitoreo y recomendaciones;
+  stop
+else (No)
+  :Registra el error de sincronización;
+  :Reintenta en el siguiente ciclo;
+  stop
+endif
+
+@enduml

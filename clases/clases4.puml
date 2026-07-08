@@ -1,0 +1,25 @@
+@startuml "Bounded Context: Notification"
+skinparam class {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam ArrowColor #7A1631
+
+package "Notification Context" {
+
+class Notificacion <<Entity>> {
+  - id : Long
+  - mensaje : String
+  - fecha : Date
+
+  + enviar() : void
+}
+
+}
+
+class Usuario <<Identity Context>> #EEEEEE
+class Recomendacion <<Recommendation Context>> #EEEEEE
+
+Usuario "1" --> "0..*" Notificacion : recibe
+Recomendacion --> Notificacion : genera
+@enduml

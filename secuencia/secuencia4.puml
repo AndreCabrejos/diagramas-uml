@@ -1,0 +1,32 @@
+@startuml "BUC4 - Gestionar Servicio (Secuencia)"
+skinparam ParticipantBackgroundColor #C7F4FF
+skinparam ParticipantBorderColor #7A1631
+skinparam ActorBackgroundColor #C7F4FF
+skinparam ActorBorderColor #7A1631
+skinparam ArrowColor #7A1631
+skinparam LifeLineBorderColor #7A1631
+
+actor "Administrador\ndel Sistema" as A
+participant "Web Responsive\n(React)" as W
+participant "AuthController" as Auth
+participant "RutaService" as RS
+database "MySQL" as DB
+
+A -> W : Inicia sesión como administrador
+W -> Auth : POST /login
+Auth -> DB : Validar credenciales y rol
+DB --> Auth : Rol: ADMIN
+Auth --> W : Token con permisos
+
+A -> W : Registra nueva ruta
+W -> RS : POST /rutas
+RS -> DB : INSERT ruta
+DB --> RS : id_ruta
+
+A -> W : Agrega paraderos a la ruta
+W -> RS : POST /rutas/{id}/paraderos
+RS -> DB : INSERT paradero
+DB --> RS : OK
+RS --> W : Ruta y paraderos creados
+W --> A : Confirmación de\nactualización del servicio
+@enduml

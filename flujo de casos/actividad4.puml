@@ -1,0 +1,34 @@
+@startuml "Flujo BUC3 - Recibir Recomendaciones"
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
+
+|Sistema|
+start
+:Recibe datos de aforo y\ntiempos de llegada de los buses;
+:Consulta preferencias del usuario;
+
+if (¿Usuario con notificaciones activas?) then (Sí)
+  :Genera recomendación\n(bus con menor aforo / mejor horario);
+  :Registra recomendación;
+  :Envía notificación push;
+
+  |Usuario|
+  :Recibe notificación;
+
+  if (¿Abre la notificación?) then (Sí)
+    :Visualiza detalle de\nla recomendación;
+    stop
+  else (No)
+    stop
+  endif
+
+else (No)
+  :No envía notificación;
+  stop
+endif
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml "Bounded Context: Identity"
+skinparam class {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam ArrowColor #7A1631
+
+package "Identity Context" {
+
+class Usuario <<Aggregate Root>> {
+  - id : Long
+  - nombre : String
+  - correo : String
+  - password : String
+
+  + iniciarSesion() : Boolean
+  + consultarRutas() : List<Ruta>
+  + consultarAforo() : Integer
+}
+
+}
+
+class Ubicacion <<Transit Context>> #EEEEEE
+class Suscripcion <<Subscription & Payment Context>> #EEEEEE
+class Notificacion <<Notification Context>> #EEEEEE
+class Recomendacion <<Recommendation Context>> #EEEEEE
+
+Usuario "1" --> "1" Ubicacion : comparte
+Usuario "1" --> "0..*" Suscripcion : contrata
+Usuario "1" --> "0..*" Notificacion : recibe
+Usuario "1" --> "0..*" Recomendacion : consulta
+@enduml

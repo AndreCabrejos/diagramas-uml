@@ -1,0 +1,40 @@
+@startuml "BUC2 - Monitorear Buses y Aforo (Sistema)"
+left to right direction
+skinparam usecase {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam actor {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam rectangle {
+  BorderColor #7A1631
+}
+skinparam Arrow {
+  Color #7A1631
+}
+
+actor "Usuario ULima" as User
+actor "API Corredor Rojo" as BusAPI <<External>>
+
+rectangle "EsperaRojo ULima" {
+  usecase "Iniciar sesión" as UC1
+  usecase "Ver ubicación de buses\nen tiempo real" as UC2
+  usecase "Consultar aforo\nactual del bus" as UC3
+  usecase "Ver tiempo estimado\nde llegada" as UC4
+  usecase "Actualizar datos\nde buses" as UC5
+}
+
+User --> UC2
+User --> UC3
+User --> UC4
+
+UC2 ..> UC1 : <<include>>
+UC3 ..> UC1 : <<include>>
+UC4 ..> UC2 : <<extend>>
+
+UC2 ..> UC5 : <<include>>
+UC3 ..> UC5 : <<include>>
+UC5 --> BusAPI
+@enduml

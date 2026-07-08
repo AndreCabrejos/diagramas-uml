@@ -1,0 +1,27 @@
+@startuml "BUC3 - Recibir Recomendaciones (Secuencia)"
+skinparam ParticipantBackgroundColor #C7F4FF
+skinparam ParticipantBorderColor #7A1631
+skinparam ActorBackgroundColor #C7F4FF
+skinparam ActorBorderColor #7A1631
+skinparam ArrowColor #7A1631
+skinparam LifeLineBorderColor #7A1631
+
+participant "BusService" as BS
+participant "RecommendationService" as RS
+participant "NotificationService" as NS
+participant "Servicio de\nNotificaciones" as Push
+database "MySQL" as DB
+actor "Usuario ULima" as U
+
+BS -> RS : Envía datos de aforo\ny tiempos de llegada
+RS -> DB : Consulta preferencias\ndel usuario
+DB --> RS : Preferencias
+RS -> RS : Genera recomendación\n(mejor horario / bus con\nmenor aforo)
+RS -> DB : INSERT recomendacion
+RS -> NS : Solicita notificación
+NS -> DB : INSERT notificacion
+NS -> Push : Envía notificación push
+Push --> U : "Te recomendamos tomar\nel bus de las 8:15,\nmenor aforo"
+U -> NS : Abre la notificación
+NS --> U : Muestra detalle de\nla recomendación
+@enduml
