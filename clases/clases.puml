@@ -1,6 +1,8 @@
-@startuml "EsperaRojo"
+@startuml "EsperaRojo - Domain Model"
 
-class Usuario {
+package "Identity Context" {
+
+class Usuario <<Aggregate Root>> {
   - id : Long
   - nombre : String
   - correo : String
@@ -11,7 +13,11 @@ class Usuario {
   + consultarAforo() : Integer
 }
 
-class Ruta {
+}
+
+package "Transit Context" {
+
+class Ruta <<Aggregate Root>> {
   - id : Long
   - nombre : String
   - direccion : String
@@ -20,7 +26,7 @@ class Ruta {
   + obtenerParaderos() : List<Paradero>
 }
 
-class Paradero {
+class Paradero <<Entity>> {
   - id : Long
   - nombre : String
   - ubicacion : String
@@ -28,7 +34,7 @@ class Paradero {
   + obtenerProximosBuses() : List<Bus>
 }
 
-class Bus {
+class Bus <<Entity>> {
   - id : Long
   - codigo : String
   - capacidadMaxima : Integer
@@ -38,7 +44,7 @@ class Bus {
   + calcularAforo() : Double
 }
 
-class Ubicacion {
+class Ubicacion <<Value Object>> {
   - id : Long
   - latitud : Double
   - longitud : Double
@@ -47,16 +53,30 @@ class Ubicacion {
   + obtenerDistancia() : Double
 }
 
-class Pago {
+}
+
+package "Payment Context" {
+
+class Pago <<Aggregate Root>> {
   - id : Long
   - fechaPago : Date
   - monto : Decimal
-  - estado : String
+  - estado : EstadoPago
 
   + procesarPago() : Boolean
 }
 
-class Notificacion {
+enum EstadoPago {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+}
+
+}
+
+package "Notification Context" {
+
+class Notificacion <<Entity>> {
   - id : Long
   - mensaje : String
   - fecha : Date
@@ -64,17 +84,17 @@ class Notificacion {
   + enviar() : void
 }
 
-class Recomendacion {
+}
+
+package "Recommendation Context" {
+
+class Recomendacion <<Entity>> {
   - id : Long
   - descripcion : String
 
   + generarRecomendacion() : String
 }
 
-enum EstadoPago {
-  PENDIENTE
-  APROBADO
-  RECHAZADO
 }
 
 Pago --> EstadoPago : usa
@@ -84,8 +104,8 @@ Usuario "1" --> "0..*" Pago : realiza
 Usuario "1" --> "0..*" Notificacion : recibe
 Usuario "1" --> "0..*" Recomendacion : consulta
 
-Ruta "1" --> "1..*" Paradero : contiene
-Ruta "1" --> "1..*" Bus : asigna
+Ruta "1" o-- "1..*" Paradero : contiene
+Ruta "1" o-- "1..*" Bus : asigna
 
 Paradero "1" --> "0..*" Bus : recibe
 

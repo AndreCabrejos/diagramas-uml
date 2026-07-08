@@ -1,0 +1,19 @@
+@startuml C1_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(usuario, "Usuario",
+"Estudiante o trabajador de la Universidad de Lima")
+
+System(esperarojo, "EsperaRojo ULima",
+"Página Web Responsive para consultar información del Corredor Rojo")
+
+System_Ext(maps, "Google Maps API", "Mapas y geolocalización")
+System_Ext(pagos, "Pasarela de Pago", "Procesamiento de suscripciones")
+System_Ext(transporte, "API Corredor Rojo", "Información de buses")
+
+Rel(usuario, esperarojo, "Consulta rutas y suscripción")
+Rel(esperarojo, maps, "Obtiene mapas")
+Rel(esperarojo, pagos, "Procesa pagos")
+Rel(esperarojo, transporte, "Consulta información")
+
+@enduml

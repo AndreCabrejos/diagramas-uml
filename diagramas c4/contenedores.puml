@@ -1,0 +1,29 @@
+@startuml C2_Container
+
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_LEFT_RIGHT()
+
+Person(usuario, "Usuario", "Estudiante")
+
+System_Boundary(s1, "EsperaRojo ULima") {
+
+    Container(web, "Página Web Responsive", "React", "Interfaz utilizada desde navegador móvil")
+
+    Container(api, "API REST", "Spring Boot", "Lógica de negocio")
+
+    ContainerDb(db, "Base de Datos", "MySQL", "Información del sistema")
+}
+
+System_Ext(maps, "Google Maps API", "Mapas")
+System_Ext(payment, "Pasarela de Pago", "Pagos")
+System_Ext(busapi, "API Transporte", "Información de buses")
+
+Rel(usuario, web, "Usa")
+Rel(web, api, "HTTPS / JSON")
+Rel(api, db, "CRUD")
+Rel(api, maps, "Consulta mapas")
+Rel(api, payment, "Procesa pagos")
+Rel(api, busapi, "Consulta buses")
+
+@enduml

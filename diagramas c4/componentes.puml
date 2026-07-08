@@ -1,0 +1,33 @@
+@startuml C3_Component
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(api,"API REST"){
+
+Component(auth,"AuthController","REST")
+Component(user,"UsuarioService","Negocio")
+Component(route,"RutaService","Negocio")
+Component(bus,"BusService","Negocio")
+Component(subscription,"SubscriptionService","Negocio")
+Component(payment,"PaymentService","Negocio")
+Component(notification,"NotificationService","Negocio")
+Component(recommendation,"RecommendationService","Negocio")
+
+}
+
+ContainerDb(db,"MySQL")
+
+Rel(auth,user,"Autentica")
+Rel(user,subscription,"Consulta")
+Rel(subscription,payment,"Gestiona pagos")
+Rel(route,bus,"Consulta")
+Rel(bus,recommendation,"Envía datos")
+Rel(recommendation,notification,"Genera alertas")
+
+Rel(auth,db,"Lee")
+Rel(user,db,"CRUD")
+Rel(route,db,"CRUD")
+Rel(bus,db,"CRUD")
+Rel(subscription,db,"CRUD")
+Rel(payment,db,"CRUD")
+
+@enduml
