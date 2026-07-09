@@ -1,5 +1,4 @@
 //https://dbdiagram.io
-
 Table usuario {
   id_usuario int [pk, increment]
   nombre varchar
@@ -75,3 +74,4 @@ Ref: suscripcion.id_usuario > usuario.id_usuario
 Ref: pago.id_suscripcion > suscripcion.id_suscripcion
 Ref: paradero.id_ruta > ruta.id_ruta
 Ref: bus.id_ruta > ruta.id_ruta
+
