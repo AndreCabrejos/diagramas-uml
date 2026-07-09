@@ -2,7 +2,7 @@
 
 package "EsperaRojo" {
 
-  [App Movil]
+  [App Reactive]
 
   [API Backend]
 
@@ -16,7 +16,7 @@ package "EsperaRojo" {
 
 }
 
-[App Movil] --> [API Backend]
+[App Reactive] --> [API Backend]
 
 [API Backend] --> [Base de Datos]
 

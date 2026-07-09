@@ -5,25 +5,30 @@ actor/ "Usuario ULima" <<Business Actor>> as User
 actor/ "Operador de\nTransporte" <<Business Actor>> as Transport
 actor/ "Administrador\ndel Sistema" <<Business Worker>> as Admin
 
-usecase/ "Consultar\nInformación de Viaje" as BUC1
-usecase/ "Monitorear\nBuses y Aforo" as BUC2
-usecase/ "Recibir\nRecomendaciones" as BUC3
-usecase/ "Gestionar\nServicio" as BUC4
-usecase/ "Administrar\nUsuarios y Suscripciones" as BUC5
-usecase/ "Proveer Datos de\nRutas y Buses" as BUC6
+rectangle "EsperaRojo ULima" {
+  usecase/ "Consultar\nInformación de Viaje" as BUC1
+  usecase/ "Monitorear\nBuses y Aforo" as BUC2
+  usecase/ "Recibir\nRecomendaciones" as BUC3
+  usecase/ "Gestionar\nServicio" as BUC4
+  usecase/ "Administrar\nUsuarios y Suscripciones" as BUC5
+  usecase/ "Proveer Datos de\nRutas y Buses" as BUC6
+  usecase/ "Suscribirse\nal Servicio" as BUC7
+}
 
 User --> BUC1
 User --> BUC2
 User --> BUC3
+User --> BUC7
 
 Admin --> BUC4
 Admin --> BUC5
 
 Transport --> BUC6
 
-BUC1 --> BUC2 : <<include>>
-BUC3 --> BUC2 : <<include>>
-BUC4 --> BUC6 : <<include>>
+BUC1 ..> BUC2 : <<include>>
+BUC3 ..> BUC2 : <<include>>
+BUC4 ..> BUC6 : <<include>>
+BUC5 ..> BUC7 : <<include>>
 
 skinparam usecase {
   BackgroundColor #C7F4FF
@@ -32,6 +37,10 @@ skinparam usecase {
 
 skinparam actor {
   BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+
+skinparam rectangle {
   BorderColor #7A1631
 }
 

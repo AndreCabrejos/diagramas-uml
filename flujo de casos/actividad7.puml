@@ -1,4 +1,4 @@
-@startuml "Flujo BUC6 - Proveer Datos de Rutas y Buses"
+@startuml
 skinparam SwimlaneTitleBackgroundColor #EEE
 skinparam ActivityBackgroundColor #FFF9C4
 skinparam ActivityBorderColor #7A1631

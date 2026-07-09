@@ -1,4 +1,4 @@
-@startuml "Flujo BUC5 - Suscripcion y Pago"
+@startuml 
 skinparam SwimlaneTitleBackgroundColor #EEE
 skinparam ActivityBackgroundColor #FFF9C4
 skinparam ActivityBorderColor #7A1631

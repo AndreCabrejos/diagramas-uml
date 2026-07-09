@@ -1,10 +1,10 @@
 @startuml
 
-node "Smartphone Usuario" {
+node "Usuario" {
   artifact "Aplicacion EsperaRojo"
 }
 
-node "Servidor Cloud" {
+node "Servidor Backend" {
   artifact "API Backend"
 }
 
