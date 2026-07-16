@@ -1,39 +1,49 @@
-  @startuml
-  skinparam SwimlaneTitleBackgroundColor #EEE
-  skinparam ActivityBackgroundColor #FFF9C4
-  skinparam ActivityBorderColor #7A1631
-  skinparam Arrow {
-    Color #7A1631
-  }
+@startuml "Actividad 3 - Proceso de Negocio: Ubicarse frente al Corredor Rojo (Mapa)"
+skinparam SwimlaneTitleBackgroundColor #EEE
+skinparam ActivityBackgroundColor #FFF9C4
+skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
 
-  |Usuario|
-  start
-  :Abre el mapa;
+|Usuario ULima|
+start
+:Quiere ubicarse visualmente\nrespecto al Corredor Rojo\ny sus paraderos;
 
-  |Sistema|
-  :Solicita permiso GPS;
+|Sistema EsperaRojo|
+:Presenta el mapa del\ncampus con las rutas\ny paraderos oficiales;
 
-  |Usuario|
+:Solicita al usuario compartir\nsu ubicación para\norientarlo mejor;
 
-  if (Acepta permiso?) then (Sí)
+|Usuario ULima|
+if (¿Autoriza compartir\nsu ubicación?) then (No)
+  :Continúa sin\ncompartir su ubicación;
+else (Sí)
+  |Sistema EsperaRojo|
+  :Ubica al usuario dentro\ndel mapa respecto a los\nparaderos cercanos;
+endif
 
-    |Sistema|
-    :Obtiene ubicación actual;
-    :Muestra ubicación en el mapa;
-    :Muestra paraderos cercanos;
+|Usuario ULima|
+:Elige la ruta del Corredor\nRojo que le interesa\nvisualizar;
 
-    |Usuario|
-    :Consulta información;
-    stop
+|Sistema EsperaRojo|
+:Traza el recorrido de la\nruta elegida sobre el mapa;
 
-  else (No)
+if (¿La ruta cuenta con\nparaderos publicados?) then (No)
+  :Informa que no hay\ninformación de paraderos\npara mostrar en el mapa;
+  stop
+else (Sí)
+  :Señala cada paradero\nde la ruta sobre el mapa;
 
-    |Sistema|
-    :Muestra mensaje de error;
-    :No carga el mapa;
+  |Usuario ULima|
+  :Selecciona un paradero\nde su interés;
 
-    stop
+  |Sistema EsperaRojo|
+  :Muestra el nombre y la\nubicación exacta del\nparadero elegido;
 
-  endif
+  |Usuario ULima|
+  :Decide desde qué paradero\niniciará su viaje;
+  stop
+endif
 
-  @enduml
+@enduml

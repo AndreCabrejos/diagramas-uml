@@ -1,29 +1,176 @@
-@startuml
+@startuml "Diagrama de Componentes - EsperaRojo ULima (alineado a DDD)"
 
-package "EsperaRojo" {
-
-  [App Reactive]
-
-  [API Backend]
-
-  [Base de Datos]
-
-  [Servicio GPS]
-
-  [Servicio de Notificaciones]
-
-  [Pasarela de Pago]
-
+skinparam componentStyle rectangle
+skinparam component {
+  BackgroundColor #C7F4FF
+  BorderColor #7A1631
+}
+skinparam package {
+  BackgroundColor #FFF9C4
+  BorderColor #7A1631
+}
+skinparam Arrow {
+  Color #7A1631
+}
+skinparam cloud {
+  BackgroundColor #F5F5F5
+  BorderColor #7A1631
+}
+skinparam database {
+  BackgroundColor #E8DAEF
+  BorderColor #7A1631
 }
 
-[App Reactive] --> [API Backend]
+actor "Usuario ULima\n(estudiante / trabajador)" as Usuario
 
-[API Backend] --> [Base de Datos]
+package "Cliente Web (Frontend)" {
 
-[API Backend] --> [Servicio GPS]
+  [App Shell\n(index.html + app.js)] as AppShell
 
-[API Backend] --> [Servicio de Notificaciones]
+  package "Módulo Auth\n(auth.js)" as ModAuth {
+    [UI Login / Registro] as UI_Auth
+  }
 
-[API Backend] --> [Pasarela de Pago]
+  package "Módulo Home\n(home.js)" as ModHome {
+    [UI Resumen / Dashboard] as UI_Home
+  }
+
+  package "Módulo Rutas\n(rutas.js)" as ModRutas {
+    [UI Listado de Rutas] as UI_Rutas
+  }
+
+  package "Módulo Mapa\n(mapa.js)" as ModMapa {
+    [UI Mapa Interactivo\n(Leaflet)] as UI_Mapa
+  }
+
+  package "Módulo Planes\n(planes.js)" as ModPlanes {
+    [UI Planes y Suscripción] as UI_Planes
+  }
+}
+
+cloud "OpenStreetMap\n(Tile Server)" as OSM
+cloud "Geolocation API\n(navegador)" as GeoAPI
+
+package "API REST (Node.js + Express)" as API {
+
+  package "Bounded Context:\nIdentidad y Acceso" as BC_Auth {
+    [AuthRoutes] as R_Auth
+    [AuthController] as C_Auth
+    [UserModel] as M_Auth
+    [JWT / bcrypt\n(Middleware Seguridad)] as Sec
+  }
+
+  package "Bounded Context:\nRutas y Paraderos" as BC_Rutas {
+    [RouteRoutes] as R_Route
+    [RouteController] as C_Route
+    [RouteModel] as M_Route
+  }
+
+  package "Bounded Context:\nFlota y Aforo" as BC_Bus {
+    [BusRoutes] as R_Bus
+    [BusController] as C_Bus
+    [BusModel] as M_Bus
+  }
+
+  package "Bounded Context:\nResumen de Viaje\n(orquestador)" as BC_Home {
+    [HomeRoutes] as R_Home
+    [HomeController] as C_Home
+  }
+
+  package "Bounded Context:\nSuscripciones y Planes" as BC_Plan {
+    [PlanRoutes] as R_Plan
+    [SubscriptionRoutes] as R_Sub
+    [PlanController] as C_Plan
+    [PlanModel] as M_Plan
+  }
+
+  [authMiddleware\n(verifyToken)] as MW
+  [errorHandler] as ERR
+}
+
+database "MySQL 8\n(esperarojo_db)" as DB {
+  [users]
+  [routes / stops / route_stops]
+  [buses]
+  [subscription_plans]
+  [user_subscriptions]
+}
+
+' ---- Interacciones Usuario / Frontend ----
+Usuario --> AppShell
+AppShell --> UI_Auth
+AppShell --> UI_Home
+AppShell --> UI_Rutas
+AppShell --> UI_Mapa
+AppShell --> UI_Planes
+
+UI_Mapa --> OSM : tiles del mapa
+UI_Mapa --> GeoAPI : solicita ubicación
+UI_Home --> GeoAPI : solicita ubicación
+
+' ---- Frontend -> API (fetch) ----
+UI_Auth --> R_Auth : POST /api/auth/register\nPOST /api/auth/login
+UI_Home --> R_Home : GET /api/home/summary
+UI_Rutas --> R_Route : GET /api/routes\nGET /api/routes/:id/stops
+UI_Mapa --> R_Route : GET /api/routes/:id/stops
+UI_Mapa --> R_Bus : GET /api/buses/:rutaId/aforo
+UI_Planes --> R_Plan : GET /api/plans
+UI_Planes --> R_Sub : POST /api/subscriptions
+
+' ---- Capa API interna (Routes -> Controller -> Model) ----
+R_Auth --> MW
+R_Route --> MW
+R_Bus --> MW
+R_Home --> MW
+R_Plan --> MW
+R_Sub --> MW
+
+MW --> C_Auth
+MW --> C_Route
+MW --> C_Bus
+MW --> C_Home
+MW --> C_Plan
+
+R_Auth --> C_Auth
+R_Route --> C_Route
+R_Bus --> C_Bus
+R_Home --> C_Home
+R_Plan --> C_Plan
+R_Sub --> C_Plan
+
+C_Auth --> Sec
+C_Auth --> M_Auth
+C_Route --> M_Route
+C_Bus --> M_Bus
+C_Plan --> M_Plan
+
+' Bounded Context Home orquesta Rutas y Flota (no accede a BD directamente)
+C_Home --> M_Route : consulta paraderos cercanos
+C_Home --> M_Bus : consulta próximo bus / aforo
+
+C_Auth ..> ERR
+C_Route ..> ERR
+C_Bus ..> ERR
+C_Home ..> ERR
+C_Plan ..> ERR
+
+' ---- Persistencia ----
+M_Auth --> DB
+M_Route --> DB
+M_Bus --> DB
+M_Plan --> DB
+
+note bottom of BC_Home
+  Contexto de aplicación (orquestador):
+  no posee tablas propias, compone datos
+  de Rutas/Paraderos y Flota/Aforo.
+end note
+
+note right of DB
+  Sin servicios externos de pago o
+  notificaciones push: la suscripción
+  se registra directamente en BD y el
+  mapa consume Leaflet/OSM en el cliente.
+end note
 
 @enduml

@@ -1,4 +1,4 @@
-@startuml
+@startuml "Actividad 5 - Proceso de Negocio: Calculo de Aforo por Ruta (capacidad reutilizable)"
 skinparam SwimlaneTitleBackgroundColor #EEE
 skinparam ActivityBackgroundColor #FFF9C4
 skinparam ActivityBorderColor #7A1631
@@ -6,35 +6,32 @@ skinparam Arrow {
   Color #7A1631
 }
 
-|Administrador|
+|Consumidor interno\n(hoy: Resumen de Inicio)|
 start
-:Inicia sesión como administrador;
+:Necesita conocer qué tan\nlleno está el bus de\nuna ruta puntual;
+:Solicita al sistema el nivel\nde aforo de esa ruta;
 
-|Sistema|
-:Valida credenciales y rol;
+|Sistema EsperaRojo|
+:Verifica que la ruta\nindicada sea válida;
 
-if (¿Rol de administrador?) then (Sí)
-  :Muestra panel de gestión;
+if (¿La ruta indicada\nes válida?) then (No)
+  :Informa que la ruta\nindicada no es reconocida;
+  stop
+else (Sí)
+  :Revisa los buses que se\nencuentran activos\nen esa ruta;
 
-  |Administrador|
-  :Registra o actualiza\nrutas y paraderos;
-
-  |Sistema|
-  :Valida los datos ingresados;
-
-  if (¿Datos válidos?) then (Sí)
-    :Guarda cambios en la base de datos;
-    :Muestra confirmación;
+  if (¿Hay buses activos\ncirculando en la ruta?) then (No)
+    :Informa que por el momento\nno hay buses activos\nen esa ruta;
+    |Consumidor interno\n(hoy: Resumen de Inicio)|
+    :Comunica al usuario que no\nhay información disponible;
     stop
-  else (No)
-    :Muestra errores de validación;
+  else (Sí)
+    :Calcula el nivel de aforo\npromedio de los buses\nactivos en la ruta;
+
+    |Consumidor interno\n(hoy: Resumen de Inicio)|
+    :Recibe el indicador de aforo\ny lo presenta según\nsu propio contexto;
     stop
   endif
-
-else (No)
-  :Deniega el acceso;
-  stop
 endif
 
 @enduml
-    

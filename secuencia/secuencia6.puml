@@ -1,29 +1,67 @@
-@startuml "BUC6 - Proveer Datos de Rutas y Buses (Secuencia)"
+@startuml "Secuencia 6 - Consultar Planes y Suscribirse (HU-06) - Analisis de Robustez"
 skinparam ParticipantBackgroundColor #C7F4FF
 skinparam ParticipantBorderColor #7A1631
 skinparam ActorBackgroundColor #C7F4FF
 skinparam ActorBorderColor #7A1631
 skinparam ArrowColor #7A1631
 skinparam LifeLineBorderColor #7A1631
+skinparam BoundaryBackgroundColor #C7F4FF
+skinparam ControlBackgroundColor #FFF9C4
+skinparam EntityBackgroundColor #E8DAEF
 
-actor "Operador de\nTransporte" as Op
-participant "API Corredor Rojo" as API
-participant "BusService" as BS
-database "MySQL" as DB
+actor "Usuario ULima" as U
 
-Op -> API : Publica posiciones GPS\ny aforo de los buses
+boundary "Pantalla Planes\n(planes.js)" as UI
+control "authMiddleware" as MW
+control "PlanController" as CTRL
+entity "SubscriptionPlan" as E_Plan
+entity "UserSubscription" as E_Sub
+database "MySQL\n(subscription_plans,\nuser_subscriptions)" as DB
 
-loop Sincronización periódica
-  BS -> API : GET /buses (posición, aforo)
-  API --> BS : Datos actualizados
-  BS -> BS : Valida y transforma datos
-  BS -> DB : UPDATE bus\n(aforo_actual, tiempo_llegada)
-  DB --> BS : OK
+U -> UI : Abre módulo Planes
+UI -> MW : GET /api/plans\n(Bearer token)
+MW -> CTRL : forward(req)
+CTRL -> E_Plan : findAllPlans()
+E_Plan -> DB : SELECT planes\nORDER BY precio
+DB --> E_Plan : lista de planes
+E_Plan --> CTRL : planes
+CTRL --> UI : 200 [planes]
+UI --> U : Muestra tarjetas de\nplanes disponibles
+
+U -> UI : Selecciona un plan\ny confirma suscripción
+UI -> MW : POST /api/subscriptions\n{ plan_id }
+MW -> CTRL : forward(req)
+activate CTRL
+
+alt plan_id ausente
+  CTRL --> UI : 400 "Debes seleccionar\nun plan"
+  UI --> U : Muestra mensaje de error
+else plan_id presente
+  CTRL -> E_Plan : findPlanById(plan_id)
+  E_Plan -> DB : SELECT plan WHERE id = ?
+  DB --> E_Plan : fila o null
+  E_Plan --> CTRL : plan / null
+
+  alt plan no existe
+    CTRL --> UI : 404 Plan no encontrado
+    UI --> U : Muestra mensaje de error
+  else plan existe
+    CTRL -> E_Sub : createSubscription(userId, plan_id)
+    E_Sub -> E_Plan : findPlanById(plan_id)
+    E_Sub -> E_Sub : calcula fecha_inicio (hoy)\ny fecha_fin (+ duracion_dias)
+    E_Sub -> DB : INSERT INTO\nuser_subscriptions\n(estado = "activa")
+    DB --> E_Sub : id insertado
+    E_Sub --> CTRL : suscripción creada
+    CTRL --> UI : 201 { suscripción }
+    UI --> U : Muestra confirmación\nde suscripción activa
+  end
 end
+deactivate CTRL
 
-note over BS, DB
-  Los datos sincronizados alimentan
-  el monitoreo en tiempo real (BUC2)
-  y las recomendaciones (BUC3)
+note over CTRL, DB
+  Sin pasarela de pago integrada:
+  la suscripción se activa
+  directamente al registrarse
+  (no hay paso de cobro real).
 end note
 @enduml

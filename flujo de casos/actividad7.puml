@@ -1,4 +1,4 @@
-@startuml
+@startuml "Actividad 7 - Proceso de Negocio Integral: Experiencia del Usuario en EsperaRojo ULima"
 skinparam SwimlaneTitleBackgroundColor #EEE
 skinparam ActivityBackgroundColor #FFF9C4
 skinparam ActivityBorderColor #7A1631
@@ -6,22 +6,54 @@ skinparam Arrow {
   Color #7A1631
 }
 
-|Operador de Transporte|
+|Usuario ULima|
 start
-:Publica posiciones GPS y\naforo de los buses;
+:Llega a EsperaRojo ULima\ncon una necesidad de\nmovilidad dentro del campus;
 
-|Sistema|
-:Consulta la API del Corredor Rojo;
+|Sistema EsperaRojo|
+if (¿Es la primera vez o no\nha acreditado su identidad?) then (Sí)
+  :Solicita registrarse\no iniciar sesión;
+  |Usuario ULima|
+  :Acredita su identidad\nante el sistema;
 
-if (¿Datos disponibles?) then (Sí)
-  :Valida y transforma los datos;
-  :Actualiza aforo y tiempos\nde llegada en la base de datos;
-  :Notifica a los módulos de\nmonitoreo y recomendaciones;
-  stop
-else (No)
-  :Registra el error de sincronización;
-  :Reintenta en el siguiente ciclo;
-  stop
+  |Sistema EsperaRojo|
+  if (¿La identidad fue\nvalidada correctamente?) then (No)
+    :Deniega el acceso;
+    stop
+  else (Sí)
+    :Reconoce al usuario y le\nda la bienvenida;
+  endif
+else (No, ya es un\nusuario reconocido)
+  :Mantiene su\nsesión activa;
 endif
+
+:Pone a disposición del\nusuario los servicios\nprincipales del corredor;
+
+|Usuario ULima|
+repeat
+  :Elige qué necesidad de\nnegocio quiere resolver;
+  switch (¿Qué necesidad\ntiene en este momento?)
+  case (Saber qué bus\ntomar ahora mismo)
+    |Sistema EsperaRojo|
+    :Le muestra próximo bus,\naforo y paraderos cercanos;
+  case (Planificar su\nviaje por rutas)
+    |Sistema EsperaRojo|
+    :Le muestra el catálogo\nde rutas y paraderos;
+  case (Ubicarse en el mapa\ndel corredor y ver el\nrecorrido de una ruta)
+    |Sistema EsperaRojo|
+    :Le muestra su posición,\nel recorrido y los\nparaderos de la ruta;
+  case (Mejorar su experiencia\ncon un plan premium)
+    |Sistema EsperaRojo|
+    :Le ofrece los planes de\nsuscripción disponibles;
+  endswitch
+  |Usuario ULima|
+repeat while (¿Necesita resolver\notra necesidad ahora?) is (Sí)
+->No;
+
+:Da por concluida\nsu visita;
+
+|Sistema EsperaRojo|
+:Cierra la sesión del\nusuario de forma segura;
+stop
 
 @enduml

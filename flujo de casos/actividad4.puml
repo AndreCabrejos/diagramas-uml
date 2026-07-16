@@ -1,4 +1,4 @@
-@startuml
+@startuml "Actividad 4 - Proceso de Negocio: Recomendacion de Viaje al Inicio (Resumen Home)"
 skinparam SwimlaneTitleBackgroundColor #EEE
 skinparam ActivityBackgroundColor #FFF9C4
 skinparam ActivityBorderColor #7A1631
@@ -6,28 +6,34 @@ skinparam Arrow {
   Color #7A1631
 }
 
-|Sistema|
+|Usuario ULima|
 start
-:Recibe datos de aforo y\ntiempos de llegada de los buses;
-:Consulta preferencias del usuario;
+:Ingresa a la aplicación\nbuscando saber, de un\nvistazo, qué bus tomar;
 
-if (¿Usuario con notificaciones activas?) then (Sí)
-  :Genera recomendación\n(bus con menor aforo / mejor horario);
-  :Registra recomendación;
-  :Envía notificación push;
+:Comparte (o no) su\nubicación actual;
 
-  |Usuario|
-  :Recibe notificación;
+|Sistema EsperaRojo|
+if (¿Cuenta con la\nubicación del usuario?) then (No)
+  :Asume como referencia\nla Universidad de Lima;
+else (Sí)
+  :Usa la ubicación real\ndel usuario como referencia;
+endif
 
-  if (¿Abre la notificación?) then (Sí)
-    :Visualiza detalle de\nla recomendación;
-    stop
-  else (No)
-    stop
-  endif
+:Identifica los paraderos\nmás cercanos al usuario;
 
-else (No)
-  :No envía notificación;
+if (¿Existen paraderos\ncercanos a la referencia?) then (No)
+  :Informa que no hay\ninformación disponible\npor el momento;
+  |Usuario ULima|
+  :Ve un estado vacío en\nla pantalla principal;
+  stop
+else (Sí)
+  :Determina qué ruta del\nCorredor Rojo atiende\nal paradero más cercano;
+  :Identifica el próximo bus\ndisponible en esa ruta\n(el de menor aforo);
+  :Calcula el nivel de aforo\npromedio de la ruta\n(mínimo, máximo y promedio);
+
+  |Usuario ULima|
+  :Recibe de un vistazo el\npróximo bus, su aforo y\nlos paraderos cercanos;
+  :Decide si se dirige al\nparadero o espera un\nmejor momento;
   stop
 endif
 

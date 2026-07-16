@@ -1,37 +1,52 @@
-@startuml "BUC5 - Administrar Usuarios y Suscripciones (Secuencia)"
+@startuml "Secuencia 5 - Calculo de Aforo por Ruta (capacidad reutilizable) - Analisis de Robustez"
 skinparam ParticipantBackgroundColor #C7F4FF
 skinparam ParticipantBorderColor #7A1631
 skinparam ActorBackgroundColor #C7F4FF
 skinparam ActorBorderColor #7A1631
 skinparam ArrowColor #7A1631
 skinparam LifeLineBorderColor #7A1631
+skinparam BoundaryBackgroundColor #C7F4FF
+skinparam ControlBackgroundColor #FFF9C4
+skinparam EntityBackgroundColor #E8DAEF
 
-actor "Usuario ULima" as U
-participant "Web Responsive\n(React)" as W
-participant "SubscriptionService" as SS
-participant "PaymentService" as PS
-participant "Pasarela de Pago" as Pay
-database "MySQL" as DB
+boundary "Pantalla Home\n(único consumidor actual)" as UI
+control "HomeController" as CTRL_HOME
+control "BusController\n(servicio de aforo por ruta,\nreutilizable)" as CTRL_BUS
+entity "Bus" as E_Bus
+database "MySQL\n(tabla buses)" as DB
 
-U -> W : Selecciona plan premium
-W -> SS : POST /suscripciones
-SS -> DB : INSERT suscripcion\n(plan, estado = "pendiente")
-DB --> SS : id_suscripcion
-SS -> PS : Solicita cobro (id_suscripcion)
-PS -> Pay : Procesa pago (monto)
-Pay --> PS : Resultado del pago
+UI -> CTRL_HOME : (ver Secuencia 4:\nsolicita el resumen de inicio)
+activate CTRL_HOME
 
-alt Pago aprobado
-  PS -> DB : INSERT pago\n(estado = "aprobado", id_suscripcion)
-  PS --> SS : Pago confirmado
-  SS -> DB : UPDATE suscripcion\n(estado = "activa", fecha_inicio, fecha_fin)
-  SS --> W : Suscripción activa
-  W --> U : "¡Bienvenida al plan premium!"
-else Pago rechazado
-  PS -> DB : INSERT pago\n(estado = "rechazado", id_suscripcion)
-  PS --> SS : Pago rechazado
-  SS -> DB : UPDATE suscripcion\n(estado = "cancelada")
-  SS --> W : Error en el pago
-  W --> U : Muestra mensaje de\npago rechazado
+CTRL_HOME -> CTRL_BUS : getAforoByRouteId(routeId)\n[invocación interna, misma capa]
+activate CTRL_BUS
+
+CTRL_BUS -> E_Bus : getAforoByRouteId(routeId)
+E_Bus -> DB : SELECT AVG/MIN/MAX\n(aforo_porcentaje), COUNT(*)\nWHERE route_id=? AND estado='activo'
+DB --> E_Bus : agregados
+E_Bus --> CTRL_BUS : aforo_promedio,\nbuses_activos
+
+alt buses_activos == 0
+  CTRL_BUS --> CTRL_HOME : { aforo_porcentaje: null,\nbuses_activos: 0 }
+else buses activos
+  CTRL_BUS -> CTRL_BUS : Redondea aforo_promedio
+  CTRL_BUS --> CTRL_HOME : { aforo_porcentaje,\nbuses_activos }
 end
+deactivate CTRL_BUS
+
+CTRL_HOME --> UI : incluye el aforo dentro\ndel resumen de inicio
+deactivate CTRL_HOME
+
+note over CTRL_BUS
+  El sistema también expone esta
+  capacidad de forma pública e
+  independiente:
+  GET /api/buses/:rutaId/aforo
+  (protegida por authMiddleware).
+  En el release actual ninguna
+  pantalla del frontend invoca
+  este endpoint directamente: el
+  único consumidor real es
+  HomeController, de forma interna.
+end note
 @enduml

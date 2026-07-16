@@ -1,31 +1,57 @@
-@startuml "BUC2 - Monitorear Buses y Aforo (Secuencia)"
+@startuml "Secuencia 2 - Explorar el Catalogo de Rutas (HU-02, HU-04) - Analisis de Robustez"
 skinparam ParticipantBackgroundColor #C7F4FF
 skinparam ParticipantBorderColor #7A1631
 skinparam ActorBackgroundColor #C7F4FF
 skinparam ActorBorderColor #7A1631
 skinparam ArrowColor #7A1631
 skinparam LifeLineBorderColor #7A1631
+skinparam BoundaryBackgroundColor #C7F4FF
+skinparam ControlBackgroundColor #FFF9C4
+skinparam EntityBackgroundColor #E8DAEF
 
 actor "Usuario ULima" as U
-participant "Web Responsive\n(React)" as W
-participant "BusService" as BS
-participant "API Corredor Rojo" as API
-database "MySQL" as DB
 
-U -> W : Selecciona un paradero
-W -> BS : GET /paraderos/{id}/buses
-BS -> API : Consulta posición y aforo\nde buses en tiempo real
-API --> BS : Datos de buses
-BS -> DB : Actualiza aforo_actual\ny tiempo_llegada
-DB --> BS : OK
-BS -> BS : Calcula % de aforo\ny tiempo estimado
-BS --> W : Buses próximos (JSON)
-W --> U : Muestra buses, aforo\ny tiempo de llegada
+boundary "Pantalla Rutas\n(rutas.js)" as UI
+boundary "Pantalla Mapa\n(mapa.js)" as UI_Mapa
+control "authMiddleware" as MW
+control "RouteController" as CTRL
+entity "Route" as E_Route
+database "MySQL\n(routes, stops)" as DB
 
-loop Cada 30 segundos
-  W -> BS : Refresca datos
-  BS -> API : Consulta actualización
-  API --> BS : Nuevos datos
-  BS --> W : Datos actualizados
+U -> UI : Abre módulo Rutas\n(filtra por zona opcional)
+UI -> MW : GET /api/routes?direccion=zona\n(Authorization: Bearer token)
+MW -> MW : jwt.verify(token)
+
+alt token inválido/ausente
+  MW --> UI : 401 Token requerido
+  UI --> U : Redirige a inicio de sesión
+else token válido
+  MW -> CTRL : forward(req)
+  activate CTRL
+  CTRL -> E_Route : findAll(zona)
+  E_Route -> DB : SELECT rutas [+ WHERE\nnumero IN zona]
+  DB --> E_Route : filas de rutas
+  E_Route --> CTRL : lista de rutas
+
+  alt sin resultados para la zona
+    CTRL --> UI : 200 [] (lista vacía)
+    UI --> U : "Sin rutas para esta zona"
+  else con resultados
+    CTRL --> UI : 200 [ruta, ruta, ...]
+    UI --> U : Muestra tarjetas de ruta\n(número, sentido, paraderos,\ntiempo estimado)
+    deactivate CTRL
+
+    U -> UI : Toca una tarjeta de ruta
+    UI -> UI_Mapa : Navega a #mapa con\nla ruta seleccionada
+  end
 end
+
+note over UI_Mapa
+  La consulta del recorrido
+  detallado y los paraderos de
+  la ruta elegida continúa en la
+  Secuencia 3 (Pantalla Mapa),
+  que es quien realmente invoca
+  GET /api/routes/:id/stops.
+end note
 @enduml

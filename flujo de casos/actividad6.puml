@@ -1,4 +1,4 @@
-@startuml 
+@startuml "Actividad 6 - Proceso de Negocio: Administrar Suscripcion a Planes Premium"
 skinparam SwimlaneTitleBackgroundColor #EEE
 skinparam ActivityBackgroundColor #FFF9C4
 skinparam ActivityBorderColor #7A1631
@@ -6,37 +6,50 @@ skinparam Arrow {
   Color #7A1631
 }
 
-|Usuario|
+|Usuario ULima|
 start
-:Selecciona el plan premium;
-:Ingresa datos de pago;
+:Quiere acceder a\nbeneficios adicionales\nde EsperaRojo;
 
-|Sistema|
-:Envía solicitud a la\npasarela de pago;
+|Sistema EsperaRojo|
+:Presenta los planes de\nsuscripción disponibles\n(beneficios, precio y\nduración de cada uno);
 
-|Pasarela de Pago|
-:Procesa el pago;
+|Usuario ULima|
+:Compara los planes y\nelige el que más le\nconviene;
+:Confirma su intención\nde suscribirse;
 
-|Sistema|
-if (¿Pago aprobado?) then (Sí)
-  :Registra el pago como "aprobado";
-  :Activa la suscripción;
+|Sistema EsperaRojo|
+:Verifica que se haya\nelegido un plan válido;
 
-  |Usuario|
-  :Accede a las funciones premium;
+if (¿Se indicó un\nplan a contratar?) then (No)
+  :Solicita al usuario que\nelija un plan primero;
+  |Usuario ULima|
+  :Selecciona un plan\ny reintenta;
   stop
+else (Sí)
+  :Confirma que el plan\nelegido siga vigente\nen el catálogo;
 
-else (No)
-  :Registra el pago como "rechazado";
-  :Muestra mensaje de pago rechazado;
-
-  |Usuario|
-  if (¿Reintenta el pago?) then (Sí)
-    :Ingresa datos de pago nuevamente;
+  if (¿El plan elegido\nexiste y está vigente?) then (No)
+    :Informa que el plan\nya no está disponible;
+    |Usuario ULima|
+    :Elige otro plan\nde la lista;
     stop
-  else (No)
+  else (Sí)
+    :Define la vigencia de la\nsuscripción según la\nduración del plan elegido;
+    :Activa la suscripción\ndel usuario;
+
+    |Usuario ULima|
+    :Recibe la confirmación\nde su suscripción activa\ny accede a los beneficios;
     stop
   endif
 endif
+
+note right
+  Regla de negocio vigente hoy:
+  el cobro aún no se procesa
+  mediante una pasarela de pago,
+  por lo que la suscripción se
+  activa directamente al
+  confirmarse la elección del plan.
+end note
 
 @enduml

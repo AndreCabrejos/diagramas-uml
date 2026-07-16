@@ -1,35 +1,72 @@
-@startuml
+@startuml "Actividad 1 - Proceso de Negocio: Acceso e Identidad del Usuario"
 skinparam SwimlaneTitleBackgroundColor #EEE
 skinparam ActivityBackgroundColor #FFF9C4
 skinparam ActivityBorderColor #7A1631
+skinparam Arrow {
+  Color #7A1631
+}
 
-|Usuario|
+|Usuario ULima|
 start
-:Abre la aplicación;
-:Ingresa correo y contraseña;
-:Presiona "Iniciar sesión";
+:Llega a EsperaRojo ULima\nbuscando información\ndel Corredor Rojo;
 
-|Sistema|
-:Validar credenciales;
+if (¿Ya es un usuario\nconocido por el sistema?) then (No, se registra)
 
-if (¿Credenciales válidas?) then (Sí)
+  :Proporciona sus datos\npersonales (nombre, correo\ninstitucional y contraseña);
 
-    if (¿Usuario registrado?) then (Sí)
-        :Permitir acceso;
-        :Mostrar pantalla principal;
+  |Sistema EsperaRojo|
+  :Verifica que los datos\ncumplan las reglas del negocio\n(contraseña segura, campos\ncompletos);
 
-        |Usuario|
-        :Utiliza la aplicación;
-        stop
-
-    else (No)
-        :Mostrar mensaje de usuario no registrado;
-        stop
-    endif
-
-else (No)
-    :Mostrar mensaje de error;
+  if (¿Cumple las reglas\nde registro?) then (No)
+    :Informa al usuario qué\ndato debe corregir;
+    |Usuario ULima|
+    :Corrige y vuelve a intentar;
     stop
+  else (Sí)
+    :Verifica que no exista ya\nuna identidad con ese\ncorreo institucional;
+
+    if (¿El correo ya pertenece\na un usuario existente?) then (Sí)
+      :Informa que ya existe\nuna cuenta con ese correo;
+      |Usuario ULima|
+      :Opta por iniciar sesión\nen su lugar;
+      stop
+    else (No)
+      :Da de alta al usuario como\nnuevo miembro de la comunidad\nULima (rol estudiante por defecto);
+      :Concede acceso a los\nservicios de EsperaRojo;
+      |Usuario ULima|
+      :Ingresa a la experiencia\nprincipal de la aplicación;
+      stop
+    endif
+  endif
+
+else (Sí, ya tiene cuenta)
+
+  :Presenta su correo\ny contraseña;
+
+  |Sistema EsperaRojo|
+  :Busca la identidad del\nusuario registrada previamente;
+
+  if (¿La identidad existe\nen el sistema?) then (No)
+    :Informa que aún no tiene\ncuenta creada;
+    |Usuario ULima|
+    :Es orientado a\nregistrarse primero;
+    stop
+  else (Sí)
+    :Confirma que la contraseña\ncorresponda al usuario;
+
+    if (¿La credencial es\nválida?) then (No)
+      :Rechaza el acceso e informa\nel motivo del error;
+      |Usuario ULima|
+      :Vuelve a intentar;
+      stop
+    else (Sí)
+      :Reconoce al usuario y\nle concede acceso a la\naplicación según su rol;
+      |Usuario ULima|
+      :Ingresa a la experiencia\nprincipal de la aplicación;
+      stop
+    endif
+  endif
+
 endif
 
 @enduml

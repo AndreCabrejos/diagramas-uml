@@ -1,4 +1,4 @@
-@startuml
+@startuml "Actividad 2 - Proceso de Negocio: Explorar el Catalogo de Rutas del Corredor Rojo"
 skinparam SwimlaneTitleBackgroundColor #EEE
 skinparam ActivityBackgroundColor #FFF9C4
 skinparam ActivityBorderColor #7A1631
@@ -6,30 +6,32 @@ skinparam Arrow {
   Color #7A1631
 }
 
-|Usuario|
+|Usuario ULima|
 start
-:Accede al mapa interactivo;
+:Necesita conocer las rutas\ndel Corredor Rojo disponibles\npara planificar su viaje;
 
-|Sistema|
-:Carga rutas y paraderos;
-
-if (Existen datos?) then (Sí)
-
-  :Muestra mapa interactivo;
-
-  |Usuario|
-  :Selecciona un paradero;
-
-  |Sistema|
-  :Muestra información del paradero;
-
-  stop
-
+if (¿Quiere filtrar por\nzona de la universidad\n(norte, sur, este)?) then (Sí)
+  :Indica la zona\nde su interés;
 else (No)
-
-  :Muestra mensaje de información no disponible;
-  stop
-
+  :Prefiere ver todas\nlas rutas ofrecidas;
 endif
+
+|Sistema EsperaRojo|
+:Recupera del catálogo oficial\nlas rutas que correspondan\na lo solicitado;
+
+if (¿Existen rutas que\ncoincidan con el filtro?) then (No)
+  :Informa que no hay rutas\ndisponibles para esa zona;
+  |Usuario ULima|
+  :Ajusta o elimina\nel filtro aplicado;
+  stop
+else (Sí)
+  :Presenta el listado de rutas\ncon su número, sentido,\ncantidad de paraderos y\ntiempo estimado de recorrido;
+
+  |Usuario ULima|
+  :Revisa el listado y\ncompara las rutas disponibles;
+  :Elige la ruta que\nmás le conviene;
+  stop
+endif
+
 
 @enduml

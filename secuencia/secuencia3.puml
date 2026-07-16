@@ -1,27 +1,63 @@
-@startuml "BUC3 - Recibir Recomendaciones (Secuencia)"
+@startuml "Secuencia 3 - Mapa Interactivo con Geolocalizacion (HU-03, HU-05) - Analisis de Robustez"
 skinparam ParticipantBackgroundColor #C7F4FF
 skinparam ParticipantBorderColor #7A1631
 skinparam ActorBackgroundColor #C7F4FF
 skinparam ActorBorderColor #7A1631
 skinparam ArrowColor #7A1631
 skinparam LifeLineBorderColor #7A1631
+skinparam BoundaryBackgroundColor #C7F4FF
+skinparam ControlBackgroundColor #FFF9C4
+skinparam EntityBackgroundColor #E8DAEF
 
-participant "BusService" as BS
-participant "RecommendationService" as RS
-participant "NotificationService" as NS
-participant "Servicio de\nNotificaciones" as Push
-database "MySQL" as DB
 actor "Usuario ULima" as U
 
-BS -> RS : Envía datos de aforo\ny tiempos de llegada
-RS -> DB : Consulta preferencias\ndel usuario
-DB --> RS : Preferencias
-RS -> RS : Genera recomendación\n(mejor horario / bus con\nmenor aforo)
-RS -> DB : INSERT recomendacion
-RS -> NS : Solicita notificación
-NS -> DB : INSERT notificacion
-NS -> Push : Envía notificación push
-Push --> U : "Te recomendamos tomar\nel bus de las 8:15,\nmenor aforo"
-U -> NS : Abre la notificación
-NS --> U : Muestra detalle de\nla recomendación
+boundary "Pantalla Mapa\n(mapa.js + Leaflet)" as UI
+boundary "Geolocation API\n(navegador)" as GeoAPI
+boundary "OpenStreetMap\n(Tile Server)" as OSM
+control "authMiddleware" as MW
+control "RouteController" as CTRL
+entity "Route" as E_Route
+entity "Stop" as E_Stop
+database "MySQL" as DB
+
+U -> UI : Abre módulo Mapa
+UI -> OSM : Solicita tiles del mapa base
+OSM --> UI : Tiles renderizados
+
+UI -> MW : GET /api/routes\n(Bearer token)
+MW -> CTRL : forward(req)
+CTRL -> E_Route : findAll('todas')
+E_Route -> DB : SELECT rutas
+DB --> E_Route : filas
+E_Route --> CTRL : lista de rutas
+CTRL --> UI : 200 [rutas]
+UI --> U : Llena selector de rutas
+
+UI -> GeoAPI : getCurrentPosition()
+
+alt permiso denegado / no soportado
+  GeoAPI --> UI : error / no disponible
+  UI -> UI : Continúa sin marcador\nde usuario
+else permiso concedido
+  GeoAPI --> UI : { latitud, longitud }
+  UI -> UI : Centra el mapa y coloca\nmarcador de usuario
+end
+
+U -> UI : Selecciona una ruta
+UI -> MW : GET /api/routes/:id/stops
+MW -> CTRL : forward(req)
+CTRL -> E_Route : findById(id)
+E_Route -> DB : SELECT ruta
+DB --> E_Route : fila
+E_Route --> CTRL : ruta
+CTRL -> E_Stop : findStopsByRouteId(id)
+E_Stop -> DB : SELECT paraderos ORDER BY orden
+DB --> E_Stop : paraderos
+E_Stop --> CTRL : lista de paraderos
+CTRL --> UI : 200 { route, stops }
+UI -> UI : Dibuja polyline y\nmarcadores de paraderos
+UI --> U : Muestra ruta trazada\nen el mapa
+
+U -> UI : Toca un marcador\nde paradero
+UI --> U : Muestra popup con\nnombre y dirección
 @enduml

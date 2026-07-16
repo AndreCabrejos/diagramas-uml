@@ -1,32 +1,76 @@
-@startuml "BUC4 - Gestionar Servicio (Secuencia)"
+@startuml "Secuencia 4 - Resumen de Inicio: Paraderos Cercanos y Proximo Bus (HU-02, HU-07) - Analisis de Robustez"
 skinparam ParticipantBackgroundColor #C7F4FF
 skinparam ParticipantBorderColor #7A1631
 skinparam ActorBackgroundColor #C7F4FF
 skinparam ActorBorderColor #7A1631
 skinparam ArrowColor #7A1631
 skinparam LifeLineBorderColor #7A1631
+skinparam BoundaryBackgroundColor #C7F4FF
+skinparam ControlBackgroundColor #FFF9C4
+skinparam EntityBackgroundColor #E8DAEF
 
-actor "Administrador\ndel Sistema" as A
-participant "Web Responsive\n(React)" as W
-participant "AuthController" as Auth
-participant "RutaService" as RS
+actor "Usuario ULima" as U
+
+boundary "Pantalla Home\n(home.js)" as UI
+boundary "Geolocation API\n(navegador)" as GeoAPI
+control "authMiddleware" as MW
+control "HomeController" as CTRL
+entity "Stop" as E_Stop
+entity "Route" as E_Route
+entity "Bus" as E_Bus
 database "MySQL" as DB
 
-A -> W : Inicia sesión como administrador
-W -> Auth : POST /login
-Auth -> DB : Validar credenciales y rol
-DB --> Auth : Rol: ADMIN
-Auth --> W : Token con permisos
+U -> UI : Ingresa a la\npantalla principal
+UI -> GeoAPI : getCurrentPosition()
 
-A -> W : Registra nueva ruta
-W -> RS : POST /rutas
-RS -> DB : INSERT ruta
-DB --> RS : id_ruta
+alt ubicación no disponible
+  GeoAPI --> UI : error
+  UI -> UI : Continúa sin coordenadas
+else ubicación disponible
+  GeoAPI --> UI : { latitud, longitud }
+end
 
-A -> W : Agrega paraderos a la ruta
-W -> RS : POST /rutas/{id}/paraderos
-RS -> DB : INSERT paradero
-DB --> RS : OK
-RS --> W : Ruta y paraderos creados
-W --> A : Confirmación de\nactualización del servicio
+UI -> MW : GET /api/home/summary\n(?lat&lng)
+MW -> CTRL : forward(req)
+activate CTRL
+
+alt sin coordenadas válidas
+  CTRL -> CTRL : Usa coordenadas por\ndefecto (Universidad de Lima)
+end
+
+CTRL -> E_Stop : findNearbyStops(lat, lng, 5)
+E_Stop -> DB : SELECT stops ORDER BY\ndistancia Haversine LIMIT 5
+DB --> E_Stop : paraderos cercanos
+E_Stop --> CTRL : lista (0..5)
+
+alt sin paraderos cercanos
+  CTRL --> UI : 200 { paraderos: [],\nproximo_bus: null, aforo: null }
+  UI --> U : Muestra estado vacío
+else con paraderos cercanos
+  CTRL -> E_Route : findAll('todas')
+  E_Route -> DB : SELECT rutas
+  DB --> E_Route : rutas
+  E_Route --> CTRL : lista de rutas
+
+  loop hasta encontrar ruta que\npase por el paradero más cercano
+    CTRL -> E_Route : findStopsByRouteId(route.id)
+    E_Route -> DB : SELECT route_stops
+    DB --> E_Route : paraderos de la ruta
+    E_Route --> CTRL : paraderos
+  end
+
+  CTRL -> E_Bus : getNextBus(route.id)
+  E_Bus -> DB : SELECT bus con menor\naforo_porcentaje (activo)
+  DB --> E_Bus : bus o null
+  E_Bus --> CTRL : próximo bus
+
+  CTRL -> E_Bus : getAforoByRouteId(route.id)
+  E_Bus -> DB : SELECT AVG/MIN/MAX\naforo_porcentaje
+  DB --> E_Bus : estadísticas de aforo
+  E_Bus --> CTRL : aforo (promedio, min, max)
+
+  CTRL --> UI : 200 { paraderos_cercanos,\nproximo_bus, aforo }
+  UI --> U : Muestra tarjeta de próximo\nbus, aforo y paraderos cercanos
+end
+deactivate CTRL
 @enduml
